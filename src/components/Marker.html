@@ -1,0 +1,31 @@
+<div></div>
+
+<script>
+import mapboxgl from 'mapbox-gl-js'
+
+export default {
+  oncreate () {
+    const map = this.get('map')
+    const lngLat = this.get('lngLat')
+
+    this.marker = new mapboxgl.Marker({ draggable: true })
+      .setLngLat(lngLat)
+      .on('drag', e => {
+        const lngLat = this.marker.getLngLat()
+        this.fire('drag', {lngLat: [lngLat.lng, lngLat.lat]})
+      })
+      .addTo(map)
+
+    this
+      .observe('lngLat', lngLat => {
+        this.marker.setLngLat(lngLat)
+      })
+  },
+
+  ondestroy () {
+    const map = this.get('map')
+    map.removeLayer(this.layer)
+    map.removeSource(`wp-marker-source-${this.id}`)
+  }
+}
+</script>

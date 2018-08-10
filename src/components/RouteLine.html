@@ -1,0 +1,49 @@
+<div></div>
+
+<script>
+import {lineString} from '@turf/helpers'
+
+var lineId = 0
+
+export default {
+  oncreate () {
+    const map = this.get('map')
+    const route = this.get('route')
+
+    const id = ++lineId
+    this.layerId = `route-line-${id}`
+    this.sourceId = `route-line-source-${id}`
+
+    map.addSource(this.sourceId, {
+      type: 'geojson',
+      data: lineString(route.coordinates)
+    })
+
+    this.layer = {
+      id: this.layerId,
+      type: 'line',
+      source: this.sourceId,
+      paint: {
+        'line-color': '#38f'
+      }
+    }
+    map.addLayer(this.layer)
+
+    this.observe('route', route => {
+      map.getSource(this.sourceId).setData(lineString(route.coordinates))
+    })
+
+    this.observe('selected', selected => {
+      map
+        .setPaintProperty(this.layerId, 'line-width', selected ? 8 : 5)
+        .setPaintProperty(this.layerId, 'line-opacity', selected ? 1 : 0.7)
+    })
+  },
+
+  ondestroy () {
+    const map = this.get('map')
+    map.removeLayer(this.layerId)
+    map.removeSource(`route-line-source-${this.id}`)
+  }
+}
+</script>
