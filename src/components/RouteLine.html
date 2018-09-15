@@ -3,41 +3,43 @@
 <script>
 import {lineString} from '@turf/helpers'
 
-var lineId = 0
+var id = 0
 
 export default {
-  oncreate () {
-    const map = this.get('map')
-    const route = this.get('route')
+  onstate ({ changed, current }) {
+    const { map, route, selected } = current
 
-    const id = ++lineId
-    this.layerId = `route-line-${id}`
-    this.sourceId = `route-line-source-${id}`
-
-    map.addSource(this.sourceId, {
-      type: 'geojson',
-      data: lineString(route.coordinates)
-    })
-
-    this.layer = {
-      id: this.layerId,
-      type: 'line',
-      source: this.sourceId,
-      paint: {
-        'line-color': '#38f'
+    if (changed.route) {
+      if (!this.sourceId) {
+        this.sourceId = `route-line-source-${++id}`
+        map.addSource(this.sourceId, {
+          type: 'geojson',
+          data: lineString(route.coordinates)
+        })
       }
-    }
-    map.addLayer(this.layer)
 
-    this.observe('route', route => {
       map.getSource(this.sourceId).setData(lineString(route.coordinates))
-    })
+    }
 
-    this.observe('selected', selected => {
+    if (changed.selected) {
+      if (!this.layerId) {
+        this.layerId = `route-line-${++id}`
+
+        this.layer = {
+          id: this.layerId,
+          type: 'line',
+          source: this.sourceId,
+          paint: {
+            'line-color': '#38f'
+          }
+        }
+        map.addLayer(this.layer)
+      }
+
       map
         .setPaintProperty(this.layerId, 'line-width', selected ? 8 : 5)
         .setPaintProperty(this.layerId, 'line-opacity', selected ? 1 : 0.7)
-    })
+    }
   },
 
   ondestroy () {
