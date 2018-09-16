@@ -1,6 +1,6 @@
 {
   "name": "mapbox-gl-routing-machine",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A complete user interface for routing with Mapbox GL JS",
   "main": "index.js",
   "scripts": {
